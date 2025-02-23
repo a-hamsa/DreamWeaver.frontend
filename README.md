@@ -1,50 +1,67 @@
-# React + TypeScript + Vite
+# DreamWeaver - AI-Powered Dream Journal Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Overview
+DreamWeaver's frontend is built using React with TypeScript, styled with Tailwind CSS, and optimized for fast development using Vite. The frontend allows users to interact seamlessly with the DreamWeaver platform, providing an intuitive UI for journaling, AI-powered analysis, and community collaboration.
 
-Currently, two official plugins are available:
+## Features
+- **User Authentication**: Secure sign-up and login system.
+- **Dream Journal UI**: Rich text editor for users to log and manage their dreams.
+- **AI Dream Analysis & Story Generation**: UI components to display AI-extracted themes and generated stories.
+- **Community Gallery**: Interface for browsing, voting, and commenting on shared dreams.
+- **Analytics Dashboard**: Data visualization for tracking dream trends and patterns.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Tech Stack
+- **Frontend**: React with TypeScript, Vite for development
+- **Styling**: Tailwind CSS
+- **State Management**: React Query / Redux Toolkit
+- **API Integration**: Fetching data from ASP.NET Core Web API
+- **Deployment**: Docker & Azure
 
-## Expanding the ESLint configuration
+## Installation & Setup
+### Prerequisites
+- Node.js & npm/yarn
+- Docker
+- Azure Subscription (for deployment)
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+### Steps
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/a-hamsa/DreamWeaver.git
+   cd DreamWeaver/frontend
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Start development server:
+   ```bash
+   npm run dev
+   ```
+4. Build for production:
+   ```bash
+   npm run build
+   ```
+5. Deploy using Docker:
+   ```bash
+   docker build -t dreamweaver-frontend .
+   docker run -p 3000:3000 dreamweaver-frontend
+   ```
+6. Deploy to Azure (Optional)
 
-- Configure the top-level `parserOptions` property like this:
+## To-do List
+- [ ] Landing Page
+- [ ] Login Page
+- [ ] Register Page
+- [ ] Dashboard
+- [ ] Dream Journal Page
+- [ ] AI Analysis & Story Generation Page
+- [ ] Community Gallery Page
+- [ ] Profile Page
+- [ ] Analytics Dashboard
+- [ ] Settings Page
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+## Contribution
+If you'd like to contribute to DreamWeaver's frontend, feel free to fork the repo, create a new branch, and submit a pull request.
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
-
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+## License
+This project is licensed under the MIT License.
