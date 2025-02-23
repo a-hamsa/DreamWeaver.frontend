@@ -1,0 +1,59 @@
+# Root-level ignores
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.temp
+*.cache
+
+# Backend-specific ignores (ASP.NET)
+bin/
+obj/*
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+.nuget/
+*.cache
+*.log
+project.lock.json
+project.fragment.lock.json
+appsettings*.json
+Properties/PublishProfiles/
+
+# Frontend-specific ignores (React.js/Node.js)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+build/
+dist/
+coverage/
+.env
+.env.local
+.env.*.local
+
+# IDE and editor-specific ignores
+*.code-workspace
+.vscode/
+.vs/
+.idea/
+_ReSharper*/
+*.DotSettings.user
+
+# Temporary files
+*.tmp
+*.temp
+~$*
+
+# Operating System files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+.env
