@@ -1,17 +1,15 @@
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Index from './Pages/Index';
 
-import './App.css'
-
-function App() {
-
+const App: React.FC = () => {
   return (
-    <>
-        <div className='bg-gray-800 h-screen flex items-center justify-center'>
-          <h1 className='text-4xl text-red-600'>
-            Hello World
-          </h1>
-        </div>
-    </>
-  )
-}
+    <Router>
+      <Routes>
+        <Route path="/" element={<Index />} />
+      </Routes>
+    </Router>
+  );
+};
 
-export default App
+export default App;
