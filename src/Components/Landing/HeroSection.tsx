@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-scroll';
+import { Link as ScrollLink } from 'react-scroll';
+import { Link as RouterLink } from 'react-router-dom';
 
 const HeroSection: React.FC = () => {
   return (
@@ -23,15 +24,26 @@ const HeroSection: React.FC = () => {
           An AI-powered dream journal and collaborative story generator that lets you log your dreams,
           receive creative AI narratives, and share your published dreams with a vibrant community.
         </motion.p>
-        <Link to="details" smooth={true} duration={800} offset={-50}>
-          <motion.div
-            className="inline-block bg-white text-blue-600 font-bold py-3 px-8 rounded-full shadow hover:bg-gray-100 transition cursor-pointer"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            Discover More
-          </motion.div>
-        </Link>
+        <div className="flex justify-center space-x-4">
+          <ScrollLink to="details" smooth={true} duration={800} offset={-50}>
+            <motion.div
+              className="inline-block bg-white text-blue-600 font-bold py-3 px-8 rounded-full shadow hover:bg-gray-100 transition cursor-pointer"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Discover More
+            </motion.div>
+          </ScrollLink>
+          <RouterLink to="/login">
+            <motion.div
+              className="inline-block bg-blue-500 text-white font-bold py-3 px-8 rounded-full shadow hover:bg-blue-600 transition cursor-pointer"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Get Started
+            </motion.div>
+          </RouterLink>
+        </div>
       </div>
     </section>
   );
