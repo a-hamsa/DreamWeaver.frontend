@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FaEye, FaEyeSlash, FaHome } from 'react-icons/fa';
 import api from '../api';
+import Swal from 'sweetalert2';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -10,6 +11,21 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      Swal.fire({
+        icon: 'info',
+        title: 'Already Logged In',
+        text: 'You are already logged in. Redirecting to Home...',
+        timer: 2000,
+        showConfirmButton: false,
+      }).then(() => {
+        navigate('/home', { replace: true });
+      });
+    }
+  }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,9 +36,16 @@ const Login: React.FC = () => {
         password,
       });
       localStorage.setItem('token', response.data.token);
-      navigate('/');
+      Swal.fire({
+        icon: 'success',
+        title: 'Login Successful!',
+        text: 'Welcome back!',
+        timer: 1500,
+        showConfirmButton: false,
+      }).then(() => {
+        navigate('/home');
+      });
     } catch (err: any) {
-      // Show the error message returned from the API
       setError(err.response?.data?.message || 'Login failed');
     }
   };

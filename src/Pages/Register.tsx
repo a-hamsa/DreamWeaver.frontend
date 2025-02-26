@@ -15,19 +15,12 @@ const Register: React.FC = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  // UI state
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
 
-  // Password strength state (score 0-4)
   const [passwordScore, setPasswordScore] = useState(0);
 
-  // Evaluate password strength based on criteria:
-  // 1. Length >= 8
-  // 2. Contains at least one digit
-  // 3. Contains at least one uppercase letter
-  // 4. Contains at least one non-alphanumeric character
   const evaluatePassword = (pwd: string) => {
     let score = 0;
     if (pwd.length >= 8) score++;
@@ -73,6 +66,21 @@ const Register: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        Swal.fire({
+          icon: 'info',
+          title: 'Already Logged In',
+          text: 'You are already logged in. Redirecting to Home...',
+          timer: 2000,
+          showConfirmButton: false,
+        }).then(() => {
+          navigate('/home', { replace: true });
+        });
+      }
+    }, [navigate]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -97,7 +105,6 @@ const Register: React.FC = () => {
         navigate('/login');
       });
     } catch (err: any) {
-      // Display API error messages
       const apiError = err.response?.data?.errors
         ? err.response.data.errors.map((e: any) => e.description).join('\n')
         : err.response?.data?.message || 'Registration failed';
