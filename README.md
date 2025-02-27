@@ -49,13 +49,13 @@ DreamWeaver's frontend is built using React with TypeScript, styled with Tailwin
 6. Deploy to Azure (Optional)
 
 ## To-do List
-- [ ] Landing Page
-- [ ] Login Page
-- [ ] Register Page
+- [x] Landing Page
+- [x] Login Page
+- [x] Register Page
 - [ ] Dashboard
 - [ ] Dream Journal Page
 - [ ] AI Analysis & Story Generation Page
-- [ ] Community Gallery Page
+- [x] Community Gallery Page
 - [ ] Profile Page
 - [ ] Analytics Dashboard
 - [ ] Settings Page
