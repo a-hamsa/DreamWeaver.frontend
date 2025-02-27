@@ -1,12 +1,13 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Link as ScrollLink } from 'react-scroll';
-import { Link as RouterLink } from 'react-router-dom';
+import React from "react";
+import { motion } from "framer-motion";
+import { Link as ScrollLink } from "react-scroll";
+import { Link as RouterLink } from "react-router-dom";
 
 const HeroSection: React.FC = () => {
   return (
-    <section className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white py-24">
-      <div className="container mx-auto px-4 text-center">
+    <section className="relative text-white py-24 overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 animate-gradientMove"></div>
+      <div className="container mx-auto px-4 text-center relative z-10">
         <motion.h1
           className="text-4xl md:text-6xl font-extrabold mb-6"
           initial={{ opacity: 0, y: -20 }}
@@ -21,8 +22,9 @@ const HeroSection: React.FC = () => {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5, duration: 1 }}
         >
-          An AI-powered dream journal and collaborative story generator that lets you log your dreams,
-          receive creative AI narratives, and share your published dreams with a vibrant community.
+          An AI-powered dream journal and collaborative story generator that
+          lets you log your dreams, receive creative AI narratives, and share
+          your published dreams with a vibrant community.
         </motion.p>
         <div className="flex justify-center space-x-4">
           <ScrollLink to="details" smooth={true} duration={800} offset={-50}>
