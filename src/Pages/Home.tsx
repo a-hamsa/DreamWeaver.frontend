@@ -9,7 +9,7 @@ interface PublishedDream {
   id: number;
   title: string;
   generatedNarrative: string;
-  publishedAt: string;
+  publishedAt: string | null;
   userFullName: string;
 }
 

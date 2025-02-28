@@ -6,6 +6,7 @@ import Login from "./Pages/Login";
 import Register from "./Pages/Register";
 import Home from "./Pages/Home";
 import Auth from "./Components/Auth/Auth";
+import UserDreams from "./Pages/UserDreams";
 
 const App: React.FC = () => {
   const location = useLocation();
@@ -16,9 +17,9 @@ const App: React.FC = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         
-        {/* Authorized routes */}
         <Route element={<Auth />}>
           <Route path="/home" element={<Home />} />
+          <Route path="/user-dreams" element={<UserDreams />} />
         </Route>
       </Routes>
     </AnimatePresence>

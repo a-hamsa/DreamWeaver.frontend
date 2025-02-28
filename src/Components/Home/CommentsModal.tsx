@@ -17,7 +17,7 @@ interface PublishedDream {
   id: number;
   title: string;
   generatedNarrative: string;
-  publishedAt: string;
+  publishedAt: string | null;
   userFullName: string;
 }
 
@@ -117,7 +117,8 @@ const CommentsModal: React.FC<CommentsModalProps> = ({ dream, onClose }) => {
       .catch((err) => console.error(err));
   };
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return "N/A";
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
       month: "short",

@@ -8,7 +8,7 @@ interface PublishedDream {
   id: number;
   title: string;
   generatedNarrative: string;
-  publishedAt: string;
+  publishedAt: string | null;
   userFullName: string;
 }
 
@@ -25,9 +25,11 @@ interface Comment {
 
 interface DreamCardProps {
   dream: PublishedDream;
+  publishButton?: React.ReactNode;
+  disableEngagement?: boolean;
 }
 
-const DreamCard: React.FC<DreamCardProps> = ({ dream }) => {
+const DreamCard: React.FC<DreamCardProps> = ({ dream, publishButton, disableEngagement = false }) => {
   const [likeCount, setLikeCount] = useState<number>(0);
   const [isLiked, setIsLiked] = useState<boolean>(false);
   const [comments, setComments] = useState<Comment[]>([]);
@@ -38,48 +40,36 @@ const DreamCard: React.FC<DreamCardProps> = ({ dream }) => {
   const commentInputRef = useRef<HTMLInputElement>(null);
   const currentUserId = localStorage.getItem("userId");
 
-  // On mount, fetch like count and comments, and check localStorage for like status
   useEffect(() => {
-    api
-      .get(`/engagement/votes/${dream.id}`)
-      .then((res) => {
-        setLikeCount(res.data.likeCount);
-        // Check localStorage for liked dreams
-        const likedDreams = JSON.parse(localStorage.getItem("likedDreams") || "[]");
-        setIsLiked(likedDreams.includes(dream.id));
-      })
-      .catch((err) => console.error(err));
+    if (!disableEngagement) {
+      api
+        .get(`/engagement/votes/${dream.id}`)
+        .then((res) => {
+          setLikeCount(res.data.likeCount);
+          setIsLiked(res.data.userLiked);
+        })
+        .catch((err) => console.error(err));
 
-    api
-      .get(`/engagement/comments/${dream.id}`)
-      .then((res) => setComments(res.data))
-      .catch((err) => console.error(err));
-  }, [dream.id]);
+      api
+        .get(`/engagement/comments/${dream.id}`)
+        .then((res) => setComments(res.data))
+        .catch((err) => console.error(err));
+    }
+  }, [dream.id, disableEngagement]);
 
   const toggleLike = () => {
+    if (disableEngagement) return;
     api
       .post("/engagement/votes", { dreamId: dream.id })
-      .then(() => {
-        // Toggle local like state and update count accordingly
-        let likedDreams = JSON.parse(localStorage.getItem("likedDreams") || "[]");
-        if (isLiked) {
-          // User already liked: remove this dream from liked array and decrease count
-          likedDreams = likedDreams.filter((id: number) => id !== dream.id);
-          setIsLiked(false);
-          setLikeCount((prev) => prev - 1);
-        } else {
-          // User has not liked: add dream id and increase count
-          likedDreams.push(dream.id);
-          setIsLiked(true);
-          setLikeCount((prev) => prev + 1);
-        }
-        localStorage.setItem("likedDreams", JSON.stringify(likedDreams));
+      .then((res) => {
+        setIsLiked(res.data.userLiked);
+        setLikeCount(res.data.likeCount);
       })
       .catch((err) => console.error(err));
   };
 
   const handleSubmitComment = () => {
-    if (!newComment.trim()) return;
+    if (disableEngagement || !newComment.trim()) return;
     setIsSubmitting(true);
     api
       .post("/engagement/comments", { dreamId: dream.id, content: newComment })
@@ -94,7 +84,8 @@ const DreamCard: React.FC<DreamCardProps> = ({ dream }) => {
       });
   };
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return "Unpublished";
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
       month: "short",
@@ -115,7 +106,7 @@ const DreamCard: React.FC<DreamCardProps> = ({ dream }) => {
       >
         <div className="px-5 pt-5 pb-3 flex items-center border-b border-gray-50">
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold">
-            {dream.userFullName.charAt(0)}
+            {dream.userFullName?.charAt(0)}
           </div>
           <div className="ml-3 flex-1">
             <h4 className="text-gray-800 font-semibold">{dream.userFullName}</h4>
@@ -161,10 +152,10 @@ const DreamCard: React.FC<DreamCardProps> = ({ dream }) => {
 
         <div className="flex border-t border-gray-100">
           <motion.button
-            whileHover={{ backgroundColor: "rgba(79, 70, 229, 0.05)" }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={{ backgroundColor: disableEngagement ? "transparent" : "rgba(79, 70, 229, 0.05)" }}
+            whileTap={{ scale: disableEngagement ? 1 : 0.95 }}
             onClick={toggleLike}
-            className="flex-1 py-3 flex items-center justify-center space-x-2 text-gray-700 hover:text-indigo-600 transition-colors"
+            className={`flex-1 py-3 flex items-center justify-center space-x-2 text-gray-700 ${disableEngagement ? "cursor-not-allowed opacity-50" : "hover:text-indigo-600 transition-colors"}`}
           >
             {isLiked ? (
               <FaThumbsUp className="w-5 h-5 text-indigo-600" />
@@ -175,14 +166,25 @@ const DreamCard: React.FC<DreamCardProps> = ({ dream }) => {
           </motion.button>
 
           <motion.button
-            whileHover={{ backgroundColor: "rgba(79, 70, 229, 0.05)" }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setIsModalOpen(true)}
-            className="flex-1 py-3 flex items-center justify-center space-x-2 text-gray-700 hover:text-indigo-600 transition-colors"
+            whileHover={{ backgroundColor: disableEngagement ? "transparent" : "rgba(79, 70, 229, 0.05)" }}
+            whileTap={{ scale: disableEngagement ? 1 : 0.95 }}
+            onClick={() => !disableEngagement && setIsModalOpen(true)}
+            className={`flex-1 py-3 flex items-center justify-center space-x-2 text-gray-700 ${disableEngagement ? "cursor-not-allowed opacity-50" : "hover:text-indigo-600 transition-colors"}`}
           >
             <FaComment className="w-5 h-5" />
             <span>Comment</span>
           </motion.button>
+
+          {publishButton && (
+            <motion.button
+              whileHover={{ backgroundColor: "rgba(79, 70, 229, 0.05)" }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => {}}
+              className="flex-1 py-3 flex items-center justify-center space-x-2 text-gray-700 hover:text-indigo-600 transition-colors"
+            >
+              {publishButton}
+            </motion.button>
+          )}
         </div>
 
         <div className="bg-gray-50 px-5 py-3">
