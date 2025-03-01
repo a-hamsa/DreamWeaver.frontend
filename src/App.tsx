@@ -7,6 +7,7 @@ import Register from "./Pages/Register";
 import Home from "./Pages/Home";
 import Auth from "./Components/Auth/Auth";
 import UserDreams from "./Pages/UserDreams";
+import Admin from "./Pages/Admin";
 
 const App: React.FC = () => {
   const location = useLocation();
@@ -20,6 +21,7 @@ const App: React.FC = () => {
         <Route element={<Auth />}>
           <Route path="/home" element={<Home />} />
           <Route path="/user-dreams" element={<UserDreams />} />
+          <Route path="/admin" element={<Admin />} />
         </Route>
       </Routes>
     </AnimatePresence>

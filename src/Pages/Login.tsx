@@ -37,6 +37,7 @@ const Login: React.FC = () => {
       });
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('userFullName', response.data.user.fullName);
+      localStorage.setItem('isAdmin', response.data.user.isAdmin);
       console.log(response);
       Swal.fire({
         icon: 'success',

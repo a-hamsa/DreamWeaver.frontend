@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaSignOutAlt, FaUser } from 'react-icons/fa';
+import { FaSignOutAlt, FaUser, FaTools } from 'react-icons/fa';
 import Swal from 'sweetalert2';
 import api from '../../api';
 
@@ -11,6 +11,7 @@ interface NavbarProps {
 const Navbar: React.FC<NavbarProps> = ({ userFullName }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const isAdmin = localStorage.getItem('isAdmin');
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -43,6 +44,8 @@ const Navbar: React.FC<NavbarProps> = ({ userFullName }) => {
           .then(() => {
             localStorage.removeItem('token');
             localStorage.removeItem('userId');
+            localStorage.removeItem('isAdmin');
+            localStorage.removeItem('userFullName');
             Swal.fire({
               title: 'Logged Out!',
               text: 'You have been successfully logged out.',
@@ -120,6 +123,15 @@ const Navbar: React.FC<NavbarProps> = ({ userFullName }) => {
                       <FaUser className="mr-2 text-indigo-500" />
                       <span>My Dreams</span>
                     </button>
+                    {isAdmin && (
+                      <button 
+                        onClick={() => window.location.href = '/admin'}
+                        className="flex items-center w-full px-4 py-3 hover:bg-gray-100 transition-colors"
+                      >
+                        <FaTools className="mr-2 text-green-500" />
+                        <span>Admin</span>
+                      </button>
+                    )}
                     <button 
                       onClick={handleLogout}
                       className="flex items-center w-full px-4 py-3 hover:bg-gray-100 transition-colors"
