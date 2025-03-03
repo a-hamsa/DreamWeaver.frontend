@@ -10,32 +10,72 @@ const Admin: React.FC = () => {
   const [view, setView] = useState<'users' | 'dreams' | 'comments'>('users');
   const navigate = useNavigate();
   const isAdmin = localStorage.getItem('isAdmin');
+  const userFullName = localStorage.getItem('userFullName') || 'Admin';
 
-useEffect(() => {
+  useEffect(() => {
     if (!isAdmin) {
-        Swal.fire({
-            icon: 'warning',
-            title: 'Access Denied',
-            text: 'You do not have permission to access this page',
-            confirmButtonColor: '#3085d6',
-        }).then(() => {
-            navigate('/home', { replace: true });
-        });
+      Swal.fire({
+        icon: 'warning',
+        title: 'Access Denied',
+        text: 'You do not have permission to access this page',
+        confirmButtonColor: '#3085d6',
+      }).then(() => {
+        navigate('/home', { replace: true });
+      });
     }
-}, [isAdmin, navigate]);
+  }, [isAdmin, navigate]);
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <Navbar userFullName={localStorage.getItem('userFullName') || 'Admin'} />
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-center mb-8">
-          <button onClick={() => setView('users')} className="mx-2 px-4 py-2 bg-blue-500 text-white rounded">Manage Users</button>
-          <button onClick={() => setView('dreams')} className="mx-2 px-4 py-2 bg-green-500 text-white rounded">Manage Dreams</button>
-          <button onClick={() => setView('comments')} className="mx-2 px-4 py-2 bg-red-500 text-white rounded">Manage Comments</button>
+      <Navbar userFullName={userFullName} />
+      
+      <div className="flex">
+        {/* Sidebar */}
+        <div className="w-64 bg-gray-800 min-h-screen p-4">
+          <div className="mb-8">
+            <h1 className="text-white text-xl font-bold mb-2">Admin Dashboard</h1>
+            <p className="text-gray-400 text-sm">Welcome, {userFullName}</p>
+          </div>
+          
+          <nav>
+            <button 
+              onClick={() => setView('users')} 
+              className={`w-full text-left mb-2 p-3 rounded flex items-center ${view === 'users' ? 'bg-blue-600 text-white' : 'text-gray-300 hover:bg-gray-700'}`}
+            >
+              <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+              </svg>
+              Manage Users
+            </button>
+            
+            <button 
+              onClick={() => setView('dreams')} 
+              className={`w-full text-left mb-2 p-3 rounded flex items-center ${view === 'dreams' ? 'bg-blue-600 text-white' : 'text-gray-300 hover:bg-gray-700'}`}
+            >
+              <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+              </svg>
+              Manage Dreams
+            </button>
+            
+            <button 
+              onClick={() => setView('comments')} 
+              className={`w-full text-left mb-2 p-3 rounded flex items-center ${view === 'comments' ? 'bg-blue-600 text-white' : 'text-gray-300 hover:bg-gray-700'}`}
+            >
+              <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
+              </svg>
+              Manage Comments
+            </button>
+          </nav>
         </div>
-        {view === 'users' && <AdminUsers />}
-        {view === 'dreams' && <AdminDreams />}
-        {view === 'comments' && <AdminComments />}
+        
+        {/* Main Content */}
+        <div className="flex-1 p-8">
+          {view === 'users' && <AdminUsers />}
+          {view === 'dreams' && <AdminDreams />}
+          {view === 'comments' && <AdminComments />}
+        </div>
       </div>
     </div>
   );
