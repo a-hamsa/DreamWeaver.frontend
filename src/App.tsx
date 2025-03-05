@@ -8,6 +8,7 @@ import Home from "./Pages/Home";
 import Auth from "./Components/Auth/Auth";
 import UserDreams from "./Pages/UserDreams";
 import Admin from "./Pages/Admin";
+import NotFound from "./Pages/NotFound";
 
 const App: React.FC = () => {
   const location = useLocation();
@@ -17,6 +18,7 @@ const App: React.FC = () => {
         <Route path="/" element={<Index />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="*" element={<NotFound />} />
         
         <Route element={<Auth />}>
           <Route path="/home" element={<Home />} />
@@ -24,6 +26,7 @@ const App: React.FC = () => {
           <Route path="/admin" element={<Admin />} />
         </Route>
       </Routes>
+
     </AnimatePresence>
   );
 };

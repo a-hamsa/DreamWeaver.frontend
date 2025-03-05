@@ -123,7 +123,7 @@ const Navbar: React.FC<NavbarProps> = ({ userFullName }) => {
                       <FaUser className="mr-2 text-indigo-500" />
                       <span>My Dreams</span>
                     </button>
-                    {isAdmin && (
+                    {isAdmin === 'true' && (
                       <button 
                         onClick={() => window.location.href = '/admin'}
                         className="flex items-center w-full px-4 py-3 hover:bg-gray-100 transition-colors"
