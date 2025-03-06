@@ -91,7 +91,12 @@ const Navbar: React.FC<NavbarProps> = ({ userFullName }) => {
             whileHover={{ scale: 1.05 }}
             className="flex items-center"
           >
-            <span className="text-2xl font-extrabold tracking-tight">DreamWeaver</span>
+            <button 
+              onClick={() => window.location.href = '/home'}
+              className="text-2xl font-extrabold tracking-tight focus:outline-none"
+            >
+              DreamWeaver
+            </button>
           </motion.div>
           
           <div className="relative" ref={dropdownRef}>

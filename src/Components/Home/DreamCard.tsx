@@ -260,15 +260,15 @@ const DreamCard: React.FC<DreamCardProps> = ({ dream, publishButton, disableEnga
                 type="text"
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && handleSubmitComment()}
+                onKeyDown={(e) => e.key === "Enter" && handleSubmitComment()}
                 placeholder="Write a comment..."
                 className="flex-1 px-4 py-2 text-sm focus:outline-none"
               />
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 disabled={isSubmitting || !newComment.trim()}
-                onClick={handleSubmitComment}
-                className="px-4 bg-indigo-100 text-indigo-600 font-medium text-sm hover:bg-indigo-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={() => !disableEngagement && handleSubmitComment()}
+                className= {`px-4 bg-indigo-100 text-indigo-600 font-medium text-sm hover:bg-indigo-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${disableEngagement ? "cursor-not-allowed opacity-50" : "hover:text-indigo-600 transition-colors"}`}
               >
                 Send
               </motion.button>
