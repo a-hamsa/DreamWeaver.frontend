@@ -9,6 +9,7 @@ import Auth from "./Components/Auth/Auth";
 import UserDreams from "./Pages/UserDreams";
 import Admin from "./Pages/Admin";
 import NotFound from "./Pages/NotFound";
+import ChatWrapper from "./Pages/ChatWrapper";
 
 const App: React.FC = () => {
   const location = useLocation();
@@ -26,6 +27,9 @@ const App: React.FC = () => {
           <Route path="/admin" element={<Admin />} />
         </Route>
       </Routes>
+      {['/home', '/user-dreams', '/admin'].includes(location.pathname) && 
+        <ChatWrapper />
+      }
 
     </AnimatePresence>
   );
