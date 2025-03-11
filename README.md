@@ -56,6 +56,7 @@ DreamWeaver's frontend is built using React with TypeScript, styled with Tailwin
 - [x] Dream Journal Page
 - [x] AI Analysis & Story Generation Page
 - [x] Community Gallery Page
+- [x] Messages Features
 - [ ] Profile Page
 - [ ] Analytics Dashboard
 - [ ] Settings Page
