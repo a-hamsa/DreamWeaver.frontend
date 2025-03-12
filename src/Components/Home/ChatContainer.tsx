@@ -11,6 +11,8 @@ import {
   FaUser
 } from 'react-icons/fa';
 import api from '../../api';
+import Swal from 'sweetalert2';
+import * as signalR from '@microsoft/signalr';
 
 interface User {
   id: string;
@@ -64,6 +66,61 @@ const ChatContainer: React.FC = () => {
   const [searchMode, setSearchMode] = useState(false);
   const messageContainerRef = useRef<HTMLDivElement>(null);
   const currentUserId = localStorage.getItem('userId');
+  const hubConnectionRef = useRef<signalR.HubConnection | null>(null);
+
+  // Initialize SignalR connection
+  useEffect(() => {
+    if (!currentUserId) return;
+
+    const connection = new signalR.HubConnectionBuilder()
+      .withUrl('http://localhost:5162/chatHub', {
+        accessTokenFactory: () => localStorage.getItem('token') || '',
+        skipNegotiation: true,
+        transport: signalR.HttpTransportType.WebSockets
+      })
+      .withAutomaticReconnect()
+      .build();
+
+    connection.on('ReceiveMessage', (message: ChatMessage) => {
+      if (!isChatOpen) {
+        setUnreadCount(prev => prev + 1);
+      }
+
+      if (selectedUser && (message.senderId === selectedUser.id || message.receiverId === selectedUser.id)) {
+        setMessages(prev => [...prev, message]);
+      } else {
+        if (!isChatOpen) {
+          const sender = previousChats.find(u => u.id === message.senderId);
+          if (sender && Notification.permission === 'granted') {
+            new Notification(`New message from ${sender.fullName}`, {
+              body: message.message.substring(0, 50) + (message.message.length > 50 ? '...' : '')
+            });
+          }
+        }
+      }
+    });
+
+    connection.on('MessageDeleted', (messageId: number) => {
+      setMessages(prev => prev.filter(m => m.id !== messageId));
+    });
+
+    connection.start()
+      .then(() => {
+        console.log('SignalR Connected');
+        // Join the user-specific group
+        return connection.invoke('JoinUserSpecificGroup', currentUserId);
+      })
+      .catch(err => console.error('SignalR Connection Error: ', err));
+
+    hubConnectionRef.current = connection;
+
+    // Cleanup on unmount
+    return () => {
+      if (connection) {
+        connection.stop();
+      }
+    };
+  }, [currentUserId]);
 
   // Load previous chats
   useEffect(() => {
@@ -174,12 +231,46 @@ const ChatContainer: React.FC = () => {
       .finally(() => setIsSending(false));
   };
 
+  const confirmDeleteMessage = (messageId: number) => {
+    Swal.fire({
+      title: 'Delete Message',
+      text: 'Are you sure you want to delete this message?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#4F46E5',
+      cancelButtonColor: '#6B7280', 
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel',
+      reverseButtons: true,
+      focusCancel: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        deleteMessage(messageId);
+      }
+    });
+  };
+
   const deleteMessage = (messageId: number) => {
     api.delete(`/chat/${messageId}`)
       .then(() => {
         setMessages(messages.filter(m => m.id !== messageId));
+        Swal.fire({
+          title: 'Deleted!',
+          text: 'Your message has been deleted.',
+          icon: 'success',
+          timer: 1500,
+          showConfirmButton: false
+        });
       })
-      .catch(err => console.error('Error deleting message:', err));
+      .catch(err => {
+        console.error('Error deleting message:', err);
+        Swal.fire({
+          title: 'Error!',
+          text: 'Failed to delete message.',
+          icon: 'error',
+          confirmButtonColor: '#4F46E5'
+        });
+      });
   };
 
   const formatTime = (dateString: string) => {
@@ -200,6 +291,13 @@ const ChatContainer: React.FC = () => {
     groups[date].push(message);
     return groups;
   }, {} as Record<string, ChatMessage[]>);
+
+  // For browser notifications
+  useEffect(() => {
+    if ('Notification' in window && Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+      Notification.requestPermission();
+    }
+  }, []);
 
   return (
     <>
@@ -261,41 +359,44 @@ const ChatContainer: React.FC = () => {
                             {date}
                           </span>
                         </div>
-                        {dateMessages.map((msg) => (
-                          <div 
-                            key={msg.id} 
-                            className={`flex ${msg.senderId === currentUserId ? 'justify-end' : 'justify-start'}`}
-                          >
-                            <div className="relative group">
-                              <div 
-                                className={`max-w-xs p-3 rounded-lg ${
-                                  msg.senderId === currentUserId 
-                                    ? 'bg-indigo-500 text-white' 
-                                    : 'bg-white text-gray-800 border border-gray-200'
-                                }`}
-                              >
-                                <p className="text-sm break-words">{msg.message}</p>
-                                <p className={`text-xs mt-1 ${
-                                  msg.senderId === currentUserId ? 'text-indigo-100' : 'text-gray-500'
-                                }`}>
-                                  {formatTime(msg.sentAt)}
-                                </p>
-                              </div>
-                              
-                              {msg.senderId === currentUserId && (
-                                <div className="absolute top-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                                  <div className="relative">
-                                    <button className="p-1 bg-white rounded-full shadow-sm text-gray-600 hover:text-red-500 focus:outline-none"
-                                      onClick={() => deleteMessage(msg.id)}
+                        {dateMessages.map((msg) => {
+                          const isSentByCurrentUser = msg.senderId === currentUserId;
+                          
+                          return (
+                            <div 
+                              key={msg.id} 
+                              className={`flex ${isSentByCurrentUser ? 'justify-end' : 'justify-start'} w-full`}
+                            >
+                              <div className="relative group max-w-xs">
+                                <div 
+                                  className={`p-3 rounded-lg ${
+                                    isSentByCurrentUser 
+                                      ? 'bg-indigo-500 text-white ml-auto' 
+                                      : 'bg-white text-gray-800 border border-gray-200'
+                                  }`}
+                                >
+                                  <p className="text-sm break-words">{msg.message}</p>
+                                  <p className={`text-xs mt-1 ${
+                                    isSentByCurrentUser ? 'text-indigo-100' : 'text-gray-500'
+                                  }`}>
+                                    {formatTime(msg.sentAt)}
+                                  </p>
+                                </div>
+                                
+                                {isSentByCurrentUser && (
+                                  <div className="absolute top-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <button 
+                                      className="p-1 bg-white rounded-full shadow-sm text-gray-600 hover:text-red-500 focus:outline-none"
+                                      onClick={() => confirmDeleteMessage(msg.id)}
                                     >
                                       <FaTrash className="w-3 h-3" />
                                     </button>
                                   </div>
-                                </div>
-                              )}
+                                )}
+                              </div>
                             </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     ))
                   )}
