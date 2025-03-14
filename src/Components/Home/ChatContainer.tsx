@@ -67,6 +67,7 @@ const ChatContainer: React.FC = () => {
   const messageContainerRef = useRef<HTMLDivElement>(null);
   const currentUserId = localStorage.getItem('userId');
   const hubConnectionRef = useRef<signalR.HubConnection | null>(null);
+  const [updatedChats, setUpdatedChats] = useState<Set<string>>(new Set());
 
   // Initialize SignalR connection
   useEffect(() => {
@@ -81,24 +82,26 @@ const ChatContainer: React.FC = () => {
       .withAutomaticReconnect()
       .build();
 
-    connection.on('ReceiveMessage', (message: ChatMessage) => {
-      if (!isChatOpen) {
-        setUnreadCount(prev => prev + 1);
-      }
-
-      if (selectedUser && (message.senderId === selectedUser.id || message.receiverId === selectedUser.id)) {
-        setMessages(prev => [...prev, message]);
-      } else {
+      connection.on('ReceiveMessage', (message: ChatMessage) => {
         if (!isChatOpen) {
-          const sender = previousChats.find(u => u.id === message.senderId);
-          if (sender && Notification.permission === 'granted') {
-            new Notification(`New message from ${sender.fullName}`, {
-              body: message.message.substring(0, 50) + (message.message.length > 50 ? '...' : '')
-            });
-          }
+          setUnreadCount(prev => prev + 1);
         }
-      }
-    });
+      
+        setMessages(prev => {
+          const isDuplicate = prev.some(m => m.id === message.id);
+          if (isDuplicate) return prev;
+          
+          return [...prev, message];
+        });
+        
+        setTimeout(scrollToBottom, 50);
+        
+        if (selectedUser?.id !== message.senderId) {
+          setUpdatedChats(prev => new Set(prev).add(message.senderId));
+          
+          // Notification logic...
+        }
+      });
 
     connection.on('MessageDeleted', (messageId: number) => {
       setMessages(prev => prev.filter(m => m.id !== messageId));
@@ -107,14 +110,12 @@ const ChatContainer: React.FC = () => {
     connection.start()
       .then(() => {
         console.log('SignalR Connected');
-        // Join the user-specific group
         return connection.invoke('JoinUserSpecificGroup', currentUserId);
       })
       .catch(err => console.error('SignalR Connection Error: ', err));
 
     hubConnectionRef.current = connection;
 
-    // Cleanup on unmount
     return () => {
       if (connection) {
         connection.stop();
@@ -122,7 +123,6 @@ const ChatContainer: React.FC = () => {
     };
   }, [currentUserId]);
 
-  // Load previous chats
   useEffect(() => {
     if (isChatOpen && !selectedUser) {
       setIsLoading(true);
@@ -135,19 +135,46 @@ const ChatContainer: React.FC = () => {
     }
   }, [isChatOpen]);
 
-  // Load messages for selected user
   useEffect(() => {
-    if (selectedUser) {
+    let lastMessageId = 0;
+    let checkInterval: NodeJS.Timeout | null = null;
+    
+    if (selectedUser && isChatOpen) {
+      // Initial fetch of messages
       setIsLoading(true);
       api.get(`/chat/conversation/${selectedUser.id}`)
         .then(res => {
           setMessages(res.data);
+          lastMessageId = res.data.length > 0 ? res.data[res.data.length - 1].id : 0;
           scrollToBottom();
         })
         .catch(err => console.error('Error fetching conversation:', err))
         .finally(() => setIsLoading(false));
+      
+      // Setup an interval to check for new messages
+      checkInterval = setInterval(() => {
+        api.get(`/chat/conversation/${selectedUser.id}`)
+          .then(res => {
+            if (res.data.length > 0) {
+              const newLastMessageId = res.data[res.data.length - 1].id;
+              
+              // Only update and scroll if there are new messages
+              if (newLastMessageId > lastMessageId) {
+                setMessages(res.data);
+                lastMessageId = newLastMessageId;
+              }
+            }
+          })
+          .catch(err => console.error('Error fetching new messages:', err));
+      }, 3000);
     }
-  }, [selectedUser]);
+    
+    return () => {
+      if (checkInterval) {
+        clearInterval(checkInterval);
+      }
+    };
+  }, [selectedUser, isChatOpen]);
 
   useEffect(() => {
     scrollToBottom();
@@ -168,6 +195,13 @@ const ChatContainer: React.FC = () => {
 
   const selectUser = (user: User) => {
     setSelectedUser(user);
+
+    setUpdatedChats(prev => {
+      const updated = new Set(prev);
+      updated.delete(user.id);
+      return updated;
+    });
+
     setSearchMode(false);
     setSearchUsername('');
     setSearchResult(null);
@@ -520,8 +554,11 @@ const ChatContainer: React.FC = () => {
                             onClick={() => selectUser(user)}
                             whileHover={{ x: 5 }}
                           >
-                            <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-semibold mr-3">
+                            <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-semibold mr-3 relative">
                               {user.fullName.charAt(0)}
+                              {updatedChats.has(user.id) && (
+                                <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
+                              )}
                             </div>
                             <div className="flex-1">
                               <h4 className="font-medium text-gray-800">{user.fullName}</h4>
