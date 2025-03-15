@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaSignOutAlt, FaUser, FaTools } from 'react-icons/fa';
+import { FaSignOutAlt, FaUser, FaTools, FaChartBar } from 'react-icons/fa';
 import Swal from 'sweetalert2';
 import api from '../../api';
 
@@ -127,6 +127,13 @@ const Navbar: React.FC<NavbarProps> = ({ userFullName }) => {
                     >
                       <FaUser className="mr-2 text-indigo-500" />
                       <span>My Dreams</span>
+                    </button>
+                    <button 
+                      onClick={() => window.location.href = '/analytics'}
+                      className="flex items-center w-full px-4 py-3 hover:bg-gray-100 transition-colors"
+                    >
+                      <FaChartBar className="mr-2 text-purple-500" />
+                      <span>Analytics</span>
                     </button>
                     {isAdmin === 'true' && (
                       <button 

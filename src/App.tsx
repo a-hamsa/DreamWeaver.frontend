@@ -10,6 +10,7 @@ import UserDreams from "./Pages/UserDreams";
 import Admin from "./Pages/Admin";
 import NotFound from "./Pages/NotFound";
 import ChatWrapper from "./Pages/ChatWrapper";
+import Analytics from "./Pages/Analytics";
 
 const App: React.FC = () => {
   const location = useLocation();
@@ -25,6 +26,8 @@ const App: React.FC = () => {
           <Route path="/home" element={<Home />} />
           <Route path="/user-dreams" element={<UserDreams />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/analytics" element={<Analytics />} />
+
         </Route>
       </Routes>
       {['/home', '/user-dreams', '/admin'].includes(location.pathname) && 
